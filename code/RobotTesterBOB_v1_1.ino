@@ -1,3 +1,5 @@
+//v1.1 add a flag for the horizontal sweep which can be enable by s 0 or s 1
+
 #include <Servo.h>
 #include "ESC.h"
  
@@ -51,6 +53,9 @@ Servo servoRotation;
 
 boolean topRev = false;
 boolean botRev = false;
+boolean horSweep = false;
+
+
 
 void setServoPositions(int _motorBottom, int _motorTop, int _servoHSweep, int _servoVSweep, int _servoRotation){
   myESCBOT.speed(map(_motorBottom,0,180, MOTOR_PULSE_ZERO, MOTOR_PULSE_180));
@@ -89,7 +94,8 @@ void setup()
   Serial.println("v# - Set vertical servo");
   Serial.println("r# - Set rotation servo");
   Serial.println("f - Feed the ball");
-  Serial.println("c# - Continuous feed every #ms");
+  Serial.println("o - Enable/Disable Horizontal Sweep");
+  Serial.println("c# - Continuous feed every #ms c0 -Stop");
 }
 
 void loop()
@@ -151,13 +157,13 @@ void loop()
     if(wheel == 'q'){//Reverse the top motor
       Serial.println("Reverse top not available");
       //motorTop.writeMicroseconds( map(0,0,180,MOTOR_PULSE_ZERO,MOTOR_PULSE_180) );
-      topRev=!topRev;
+      //topRev=!topRev;
       //digitalWrite(PIN_REVERSE_TOP, topRev);
     }
     if(wheel == 's'){//Reverse the bottom motor
       Serial.println("Reverse bottom not available");
       //motorBottom.writeMicroseconds( map(0,0,180,MOTOR_PULSE_ZERO,MOTOR_PULSE_180) );
-      botRev=!botRev;
+      //botRev=!botRev;
       //digitalWrite(PIN_REVERSE_BOT, botRev);
     }
     if(wheel == 'd'){//Set both motor speeds
@@ -187,10 +193,22 @@ void loop()
       //servoHSweep.writeMicroseconds( map(hPos,0,180,SERVO_PULSE_ZERO,SERVO_PULSE_180) );
       servoHSweep.write(map(hPos,0,180,SERVO_HMIN,SERVO_HMAX));
     }
+    if(wheel == 'o') {//Enable/Disable the horizontal Sweep
+      if (!horSweep) {
+        Serial.println("Enable Horizontal Sweep");
+        horSweep = true;
+      }
+      else {
+        Serial.println("Disable Horizontal Sweep");
+        horSweep = false;
+      }      
+      }
   }//End not in continuous
   else{//We're in continuous mode, so feed the ball
     feed();
-    sweep_h();
+    if (horSweep) { 
+      sweep_h();
+    }
   }
 }
 
